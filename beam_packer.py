@@ -125,6 +125,12 @@ def plot_packing_metric(t_data):
     ax.grid(True)
     ax.set_title(info_str)
 
+    fig.tight_layout()
+
+    fig.savefig("packing_metric.pdf", bbox_inches="tight")
+    fig.savefig("packing_metric.png", bbox_inches="tight",
+                dpi=200)
+
 
 def get_beam_mapping(t_data):
     """
