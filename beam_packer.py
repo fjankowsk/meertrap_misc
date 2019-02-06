@@ -104,6 +104,28 @@ def plot_beam_mapping(t_data):
                 dpi=200)
 
 
+def plot_packing_metric(t_data):
+    """
+    Visualize the packing metrics.
+    """
+
+    data = np.copy(t_data)
+
+    info_str = "min: {0:.2f}, median: {1:.2f}, max: {2:.2f}".format(np.min(data["totdist"]),
+                                                                    np.median(data["totdist"]),
+                                                                    np.max(data["totdist"]))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    ax.hist(data["totdist"], bins=25)
+
+    ax.set_xlabel("Total distance (degrees)")
+    ax.set_ylabel("Number")
+    ax.grid(True)
+    ax.set_title(info_str)
+
+
 def get_beam_mapping(t_data):
     """
     Map the beams to multicast addresses/compute nodes.
@@ -152,6 +174,39 @@ def get_beam_mapping(t_data):
     return data
 
 
+def check_beam_packing(t_data):
+    """
+    Evaluate the beam packing using various metrics.
+    """
+
+    data = np.copy(t_data)
+
+    data = np.sort(data, order="group")
+
+    dtype = [("group","int"), ("totdist","float")]
+    info = np.zeros(np.max(data["group"]) + 1, dtype=dtype)
+
+    for group in np.unique(data["group"]):
+        indiv = data[data["group"] == group]
+
+        indiv = np.sort(indiv, order="x")
+
+        totdist = 0
+
+        for nr in range(len(indiv) - 1):
+            dist = np.sqrt((indiv["x"][nr+1:] - indiv["x"][nr])**2 + (indiv["y"][nr+1:] - indiv["y"][nr])**2)
+            value = np.sum(dist)
+            logger.debug("Group: {0}, nr: {1}, dist: {2}, val: {3}".format(group, nr, dist, value))
+
+            totdist += value
+            logger.debug("Total distance: {0}".format(totdist))
+        
+        info["group"][group] = group
+        info["totdist"][group] = totdist
+
+    return info
+
+
 #
 # MAIN
 #
@@ -172,6 +227,9 @@ def main():
         logger.info("Beam: {0}, group: {1}".format(item["nr"], item["group"]))
 
     plot_beam_mapping(mapped)
+
+    metric = check_beam_packing(mapped)
+    plot_packing_metric(metric)
 
     plt.show()
 
