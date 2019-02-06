@@ -111,9 +111,10 @@ def plot_packing_metric(t_data):
 
     data = np.copy(t_data)
 
-    info_str = "min: {0:.2f}, median: {1:.2f}, max: {2:.2f}".format(np.min(data["totdist"]),
-                                                                    np.median(data["totdist"]),
-                                                                    np.max(data["totdist"]))
+    info_str = "min: {0:.2f}".format(np.min(data["totdist"]))
+    info_str += ", median: {0:.2f}".format(np.median(data["totdist"]))
+    info_str += ", max: {0:.2f}".format(np.max(data["totdist"]))
+    info_str += ", tot: {0:.2f}".format(np.sum(data["totdist"]))
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
