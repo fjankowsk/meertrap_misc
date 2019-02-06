@@ -111,6 +111,8 @@ def plot_packing_metric(t_data):
 
     data = np.copy(t_data)
 
+    data = np.sort(data, order="totdist")
+
     info_str = "min: {0:.2f}".format(np.min(data["totdist"]))
     info_str += ", median: {0:.2f}".format(np.median(data["totdist"]))
     info_str += ", max: {0:.2f}".format(np.max(data["totdist"]))
@@ -119,7 +121,10 @@ def plot_packing_metric(t_data):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.hist(data["totdist"], bins=25)
+    ax.hist(data["totdist"], bins=19,
+            histtype="step",
+            color="black",
+            lw=2)
 
     ax.set_xlabel("Total distance (degrees)")
     ax.set_ylabel("Number")
@@ -130,6 +135,27 @@ def plot_packing_metric(t_data):
 
     fig.savefig("packing_metric.pdf", bbox_inches="tight")
     fig.savefig("packing_metric.png", bbox_inches="tight",
+                dpi=200)
+
+    # cummulative
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    ax.hist(data["totdist"], bins=19,
+            histtype="step",
+            color="black",
+            lw=2,
+            density=True, cumulative=True)
+
+    ax.set_xlabel("Total distance (degrees)")
+    ax.set_ylabel("CDF")
+    ax.grid(True)
+    ax.set_title(info_str)
+
+    fig.tight_layout()
+
+    fig.savefig("packing_metric_cum.pdf", bbox_inches="tight")
+    fig.savefig("packing_metric_cum.png", bbox_inches="tight",
                 dpi=200)
 
 
@@ -219,7 +245,7 @@ def check_beam_packing(t_data):
 #
 
 def main():
-    infile = os.path.join("input", "134.0696_0.0_beam_pos.dat")
+    infile = os.path.join("input", "134.0696_90.0_beam_pos.dat")
     data = load_data(infile)
 
     plot_beam_centres(data)
@@ -235,7 +261,12 @@ def main():
 
     plot_beam_mapping(mapped)
 
+    start = timer()
     metric = check_beam_packing(mapped)
+    end = timer()
+
+    print("Elapsed time: {0:.2f} ms".format(1000*(end - start)))
+
     plot_packing_metric(metric)
 
     plt.show()
