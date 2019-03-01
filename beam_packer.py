@@ -64,9 +64,9 @@ def plot_beam_centres(t_data):
                 dpi=200)
 
 
-def plot_beam_mapping(t_data):
+def plot_beam_packing(t_data):
     """
-    Plot the beam mapping.
+    Plot the beam packing.
     """
 
     data = np.copy(t_data)
@@ -163,7 +163,7 @@ def plot_packing_metric(t_data):
                 dpi=200)
 
 
-def get_beam_mapping(t_data):
+def get_beam_packing(t_data):
     """
     Map the beams to multicast addresses/compute nodes.
     """
@@ -261,18 +261,18 @@ def main():
     plot_beam_centres(data)
 
     start = timer()
-    mapped = get_beam_mapping(data)
+    packed = get_beam_packing(data)
     end = timer()
 
     print("Elapsed time: {0:.2f} ms".format(1000*(end - start)))
 
-    for item in mapped:
+    for item in packed:
         logger.info("Beam: {0}, group: {1}".format(item["nr"], item["group"]))
 
-    plot_beam_mapping(mapped)
+    plot_beam_packing(packed)
 
     start = timer()
-    metric = check_beam_packing(mapped)
+    metric = check_beam_packing(packed)
     end = timer()
 
     print("Elapsed time: {0:.2f} ms".format(1000*(end - start)))
