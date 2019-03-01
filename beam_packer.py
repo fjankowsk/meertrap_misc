@@ -3,6 +3,7 @@
 #
 #   Compute beam packing for MeerTRAP.
 #   2019 Fabian Jankowski
+#   Packing algorithm devised by Sotiris Sanidas 2019.
 #
 
 import numpy as np
@@ -12,11 +13,14 @@ import matplotlib.pyplot as plt
 import sys
 from timeit import default_timer as timer
 
-logger = logging.getLogger()
-
 def load_data(filename):
     """
     Load the beam position data from file.
+
+    Parameters
+    ----------
+    filename : str
+        Name of the file from which to load the beam positions.
     """
 
     if not os.path.isfile(filename):
@@ -171,6 +175,8 @@ def get_beam_mapping(t_data):
 
     data = np.sort(data, order="x")
 
+    logger = logging.getLogger()
+
     if len(data) >= nbeams:
         data = data[0:nbeams]
         logger.info("Removed additional beams.")
@@ -216,6 +222,8 @@ def check_beam_packing(t_data):
 
     data = np.sort(data, order="group")
 
+    logger = logging.getLogger()
+
     dtype = [("group","int"), ("totdist","float")]
     info = np.zeros(np.max(data["group"]) + 1, dtype=dtype)
 
@@ -245,6 +253,8 @@ def check_beam_packing(t_data):
 #
 
 def main():
+    logger = logging.getLogger()
+
     infile = os.path.join("input", "134.0696_90.0_beam_pos.dat")
     data = load_data(infile)
 
