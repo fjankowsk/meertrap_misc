@@ -178,7 +178,7 @@ def get_beam_packing(beams, nbeams=396, bunch=6):
     data : numpy rec
         A numpy record that contains the following fields: `("nr","int"), ("x","float"), ("y","float"), ("group","int")`,
         where `x` and `y` are the on-sky horizontal and vertical coordinates of beam `nr`. `group` defines the multicast
-        address number, i.e. the compute node.
+        address number, i.e. the compute node. The resulting record is sorted by `group` number in ascending order.
     """
     logger = logging.getLogger()
 
