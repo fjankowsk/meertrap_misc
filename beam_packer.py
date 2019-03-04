@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 from timeit import default_timer as timer
 
+
 def load_data(filename):
     """
     Load the beam position data from file.
@@ -27,14 +28,7 @@ def load_data(filename):
         raise RuntimeError("Input file does not exist: {filename}")
     
     dtype = [("x","float"), ("y","float")]
-    temp = np.genfromtxt(filename, delimiter="\t", dtype=dtype)
-
-    dtype = [("nr","int"), ("x","float"), ("y","float"), ("group","int")]
-    data = np.zeros(len(temp), dtype=dtype)
-
-    data["nr"] = np.arange(len(data))
-    for field in temp.dtype.names:
-        data[field] = temp[field]
+    data = np.genfromtxt(filename, delimiter="\t", dtype=dtype)
 
     return data
 
@@ -163,20 +157,42 @@ def plot_packing_metric(t_data):
                 dpi=200)
 
 
-def get_beam_packing(t_data):
+def get_beam_packing(beams, nbeams=396, bunch=6):
     """
-    Map the beams to multicast addresses/compute nodes.
+    Map the on-sky beams to multicast addresses/compute nodes.
+
+    This function implements a simplistic and extremely fast greedy nearest-neighbor algorithm.
+
+    Parameters
+    ----------
+    beams : numpy rec
+        A numpy record that contains the following fields: `("x","float"), ("y","float")`, where
+        `x` and `y` are the on-sky horizontal and vertical coordinates of that particular beam.
+    nbeams : int, default 396
+        Only consider the first `nbeams` beams from the input for packing.
+    bunch: int, default 6
+        Number of beams to pack into a group.
+
+    Returns
+    -------
+    data : numpy rec
+        A numpy record that contains the following fields: `("nr","int"), ("x","float"), ("y","float"), ("group","int")`,
+        where `x` and `y` are the on-sky horizontal and vertical coordinates of beam `nr`. `group` defines the multicast
+        address number, i.e. the compute node.
     """
+    logger = logging.getLogger()
 
-    data = np.copy(t_data)
+    # add additional fields for output
+    dtype = [("nr","int"), ("x","float"), ("y","float"), ("group","int")]
+    data = np.zeros(len(beams), dtype=dtype)
 
-    nbeams = 396
-    bunch = 6
+    data["nr"] = np.arange(len(data))
+    for field in beams.dtype.names:
+        data[field] = beams[field]
 
     data = np.sort(data, order="x")
 
-    logger = logging.getLogger()
-
+    # only consider that many beams
     if len(data) >= nbeams:
         data = data[0:nbeams]
         logger.info("Removed additional beams.")
@@ -186,7 +202,7 @@ def get_beam_packing(t_data):
 
     work = np.copy(data)
 
-    while len(work) != 0:
+    while len(work) > 0:
         logger.debug("Length: {0}".format(len(work)))
 
         dist = np.sqrt((work["x"] - work["x"][0])**2 + (work["y"] - work["y"][0])**2)
@@ -199,7 +215,7 @@ def get_beam_packing(t_data):
 
         tot = np.sort(tot, order="dist")
 
-        # pick the closest six beams
+        # pick the closest `bunch` beams
         picked = tot[0:bunch]
         logger.debug("Group: {0}, beams: {1}".format(group, picked["nr"]))
 
@@ -209,7 +225,9 @@ def get_beam_packing(t_data):
         data["group"][mask_data] = group
 
         group += 1
-    
+
+    data = np.sort(data, order="group")
+
     return data
 
 
@@ -248,12 +266,39 @@ def check_beam_packing(t_data):
     return info
 
 
+def setup_logger(level):
+    """
+    Configure the logging.
+
+    Parameters
+    ----------
+    level : int
+        The requested logging level.
+    """
+
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    logger.propagate = False
+
+    # we want to have a clean root handler
+    for h in list(logger.handlers):
+        logger.removeHandler(h)
+
+    # log to console
+    console = logging.StreamHandler()
+    console.setLevel(level)
+    console_formatter = logging.Formatter("%(message)s")
+    console.setFormatter(console_formatter)
+    logger.addHandler(console)
+
+
 #
 # MAIN
 #
 
 def main():
     logger = logging.getLogger()
+    setup_logger(logging.ERROR)
 
     infile = os.path.join("input", "134.0696_90.0_beam_pos.dat")
     data = load_data(infile)
