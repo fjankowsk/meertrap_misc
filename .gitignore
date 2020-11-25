@@ -1,1 +1,8 @@
+__pycache__
+*.pyc
+# vim swap files
+*.swp
+# macos preview directories
+.DS_Store
+# binary golang output
 beam_packer
