@@ -24,7 +24,7 @@ def get_beam_packing(beams, nbeams=396, bunch=6):
     logger = logging.getLogger()
 
     # add additional fields for output
-    dtype = [("nr","int"), ("x","float"), ("y","float"), ("group","int")]
+    dtype = [("nr",int), ("x",float), ("y",float), ("group",int)]
     data = np.zeros(len(beams), dtype=dtype)
 
     data["nr"] = np.arange(len(data))
@@ -38,7 +38,7 @@ def get_beam_packing(beams, nbeams=396, bunch=6):
         data = data[0:nbeams]
         logger.info("Removed additional beams.")
     
-    dtype = [("nr","int"), ("x","float"), ("y","float"), ("dist","float")]
+    dtype = [("nr",int), ("x",float), ("y",float), ("dist",float)]
     group = 0
 
     work = np.copy(data)

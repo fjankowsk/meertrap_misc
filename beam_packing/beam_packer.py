@@ -1,17 +1,17 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #   Compute beam packing for MeerTRAP.
-#   2019 Fabian Jankowski
+#   2019 - 2020 Fabian Jankowski
 #   Packing algorithm devised by Sotiris Sanidas 2019.
 #
 
-import numpy as np
 import logging
 import os.path
-import matplotlib.pyplot as plt
 import sys
 from timeit import default_timer as timer
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def load_data(filename):
@@ -27,7 +27,7 @@ def load_data(filename):
     if not os.path.isfile(filename):
         raise RuntimeError("Input file does not exist: {filename}")
     
-    dtype = [("x","float"), ("y","float")]
+    dtype = [("x",float), ("y",float)]
     data = np.genfromtxt(filename, delimiter="\t", dtype=dtype)
 
     return data
@@ -54,8 +54,12 @@ def plot_beam_centres(t_data):
     fig.tight_layout()
 
     fig.savefig("beam_centres.pdf", bbox_inches="tight")
-    fig.savefig("beam_centres.png", bbox_inches="tight",
-                dpi=200)
+
+    fig.savefig(
+        "beam_centres.png",
+        bbox_inches="tight",
+        dpi=200
+    )
 
 
 def plot_beam_packing(t_data):
@@ -85,10 +89,15 @@ def plot_beam_packing(t_data):
         
         i += 1
     
-    leg = ax.legend(loc="upper center", frameon=False, ncol=11, fontsize=9,
-                    bbox_to_anchor=(0.5, -0.13),
-                    columnspacing=0.2,
-                    labelspacing=0.1)
+    leg = ax.legend(
+        loc="upper center",
+        frameon=False,
+        ncol=11,
+        fontsize=9,
+        bbox_to_anchor=(0.5, -0.13),
+        columnspacing=0.2,
+        labelspacing=0.1
+    )
     leg.set_zorder(10)
 
     ax.set_xlabel("x")
@@ -98,8 +107,12 @@ def plot_beam_packing(t_data):
     fig.tight_layout()
 
     fig.savefig("beam_mapping.pdf", bbox_inches="tight")
-    fig.savefig("beam_mapping.png", bbox_inches="tight",
-                dpi=200)
+
+    fig.savefig(
+        "beam_mapping.png",
+        bbox_inches="tight",
+        dpi=200
+    )
 
 
 def plot_packing_metric(t_data):
@@ -132,8 +145,11 @@ def plot_packing_metric(t_data):
     fig.tight_layout()
 
     fig.savefig("packing_metric.pdf", bbox_inches="tight")
-    fig.savefig("packing_metric.png", bbox_inches="tight",
-                dpi=200)
+    fig.savefig(
+        "packing_metric.png",
+        bbox_inches="tight",
+        dpi=200
+    )
 
     # cummulative
     fig = plt.figure()
@@ -153,8 +169,12 @@ def plot_packing_metric(t_data):
     fig.tight_layout()
 
     fig.savefig("packing_metric_cum.pdf", bbox_inches="tight")
-    fig.savefig("packing_metric_cum.png", bbox_inches="tight",
-                dpi=200)
+
+    fig.savefig(
+        "packing_metric_cum.png",
+        bbox_inches="tight",
+        dpi=200
+    )
 
 
 def get_beam_packing(beams, nbeams=396, bunch=6):
@@ -183,7 +203,7 @@ def get_beam_packing(beams, nbeams=396, bunch=6):
     logger = logging.getLogger()
 
     # add additional fields for output
-    dtype = [("nr","int"), ("x","float"), ("y","float"), ("group","int")]
+    dtype = [("nr",int), ("x",float), ("y",float), ("group",int)]
     data = np.zeros(len(beams), dtype=dtype)
 
     data["nr"] = np.arange(len(data))
@@ -197,7 +217,7 @@ def get_beam_packing(beams, nbeams=396, bunch=6):
         data = data[0:nbeams]
         logger.info("Removed additional beams.")
     
-    dtype = [("nr","int"), ("x","float"), ("y","float"), ("dist","float")]
+    dtype = [("nr",int), ("x",float), ("y",float), ("dist",float)]
     group = 0
 
     work = np.copy(data)
@@ -242,7 +262,7 @@ def check_beam_packing(t_data):
 
     logger = logging.getLogger()
 
-    dtype = [("group","int"), ("totdist","float")]
+    dtype = [("group",int), ("totdist",float)]
     info = np.zeros(np.max(data["group"]) + 1, dtype=dtype)
 
     for group in np.unique(data["group"]):
