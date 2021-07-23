@@ -8,8 +8,6 @@ import os.path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy.core.fromnumeric import shape
-from numpy.lib.arraypad import pad
 from scipy import interpolate
 from iqrm import iqrm_mask
 import your
