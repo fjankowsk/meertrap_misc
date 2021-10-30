@@ -9,7 +9,11 @@ import os.path
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interpolate
-from iqrm import iqrm_mask
+
+try:
+    from iqrm import iqrm_mask
+except ImportError:
+    print('Could not import the IQRM module. RFI excision will not work.')
 import your
 from your.formats.filwriter import make_sigproc_object
 
