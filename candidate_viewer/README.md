@@ -17,4 +17,4 @@ For the candidate plots, the scripts expects the following file naming conventio
 
 `<detection MJD>_DM_<detection DM>_beam_<beam ID>.jpg`, e.g. `59515.5468834399_DM_196.17_beam_51C.jpg`.
 
-The tool assumes JPEG candidate plots by default, but `ImageMagick` supports a variety of other file formats too (PNG, BMP, etc.). Simply change the script according to your needs.
+The tool assumes candidate plots in JPEG format by default, but `ImageMagick` supports a variety of other file formats too (PNG, BMP, etc.). Simply change the script according to your needs.
