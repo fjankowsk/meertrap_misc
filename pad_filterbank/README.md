@@ -1,10 +1,18 @@
 # Pad SIGPROC filterbank snippets for folding #
 
-This directory contains `python` code to pad a SIGPROC filterbank file to a certain length so that it can be folded with `DSPSR`. This is useful for filterbank snippets that are shorter than the period of a given source and/or when no ephemeris exists.
+This directory contains `python` code to pad a `SIGPROC` filterbank file to a certain length so that it can be folded with `DSPSR`. This is useful for filterbank snippets that are shorter than the period of a given source and/or when no timing ephemeris exists.
 
-The code tries hard to reduce the mismatch between the data and padding in overall normalisation and spectral behaviour (bandpass).
+The code tries hard to reduce the mismatch between the data and the padding in overall normalisation and spectral behaviour (bandpass).
 
-## Example usage ##
+Optionally, the code can run `IQRM` RFI excision methods on the input data before padding. That is because it is often beneficial to filter out RFI before folding the data, or any other processing.
+
+## Requirements ##
+
+* [IQRM](https://github.com/v-morello/iqrm) (optional but recommended)
+* Scipy
+* [Your Unified Reader -- Your](https://github.com/thepetabyteproject/your)
+
+## Usage ##
 
 ```bash
 $ python3 pad_filterbank.py -h
