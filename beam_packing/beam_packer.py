@@ -26,8 +26,8 @@ def load_data(filename):
 
     if not os.path.isfile(filename):
         raise RuntimeError("Input file does not exist: {filename}")
-    
-    dtype = [("x",float), ("y",float)]
+
+    dtype = [("x", float), ("y", float)]
     data = np.genfromtxt(filename, delimiter="\t", dtype=dtype)
 
     return data
@@ -43,9 +43,7 @@ def plot_beam_centres(t_data):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.scatter(data["x"], data["y"],
-               marker="x",
-               color="black")
+    ax.scatter(data["x"], data["y"], marker="x", color="black")
 
     ax.set_xlabel("x")
     ax.set_ylabel("y")
@@ -55,11 +53,7 @@ def plot_beam_centres(t_data):
 
     fig.savefig("beam_centres.pdf", bbox_inches="tight")
 
-    fig.savefig(
-        "beam_centres.png",
-        bbox_inches="tight",
-        dpi=200
-    )
+    fig.savefig("beam_centres.png", bbox_inches="tight", dpi=200)
 
 
 def plot_beam_packing(t_data):
@@ -69,8 +63,8 @@ def plot_beam_packing(t_data):
 
     data = np.copy(t_data)
 
-    prop_cycle = plt.rcParams['axes.prop_cycle']
-    colors = prop_cycle.by_key()['color']
+    prop_cycle = plt.rcParams["axes.prop_cycle"]
+    colors = prop_cycle.by_key()["color"]
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -82,13 +76,10 @@ def plot_beam_packing(t_data):
 
         indiv = data[data["group"] == group]
 
-        ax.scatter(indiv["x"], indiv["y"],
-                marker="x",
-                color=color,
-                label=group)
-        
+        ax.scatter(indiv["x"], indiv["y"], marker="x", color=color, label=group)
+
         i += 1
-    
+
     leg = ax.legend(
         loc="upper center",
         frameon=False,
@@ -108,11 +99,7 @@ def plot_beam_packing(t_data):
 
     fig.savefig("beam_mapping.pdf", bbox_inches="tight")
 
-    fig.savefig(
-        "beam_mapping.png",
-        bbox_inches="tight",
-        dpi=200
-    )
+    fig.savefig("beam_mapping.png", bbox_inches="tight", dpi=200)
 
 
 def plot_packing_metric(t_data):
@@ -132,10 +119,7 @@ def plot_packing_metric(t_data):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.hist(data["totdist"], bins=19,
-            histtype="step",
-            color="black",
-            lw=2)
+    ax.hist(data["totdist"], bins=19, histtype="step", color="black", lw=2)
 
     ax.set_xlabel("Total distance (degrees)")
     ax.set_ylabel("Number")
@@ -145,21 +129,21 @@ def plot_packing_metric(t_data):
     fig.tight_layout()
 
     fig.savefig("packing_metric.pdf", bbox_inches="tight")
-    fig.savefig(
-        "packing_metric.png",
-        bbox_inches="tight",
-        dpi=200
-    )
+    fig.savefig("packing_metric.png", bbox_inches="tight", dpi=200)
 
     # cummulative
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.hist(data["totdist"], bins=19,
-            histtype="step",
-            color="black",
-            lw=2,
-            density=True, cumulative=True)
+    ax.hist(
+        data["totdist"],
+        bins=19,
+        histtype="step",
+        color="black",
+        lw=2,
+        density=True,
+        cumulative=True,
+    )
 
     ax.set_xlabel("Total distance (degrees)")
     ax.set_ylabel("CDF")
@@ -170,11 +154,7 @@ def plot_packing_metric(t_data):
 
     fig.savefig("packing_metric_cum.pdf", bbox_inches="tight")
 
-    fig.savefig(
-        "packing_metric_cum.png",
-        bbox_inches="tight",
-        dpi=200
-    )
+    fig.savefig("packing_metric_cum.png", bbox_inches="tight", dpi=200)
 
 
 def get_beam_packing(beams, nbeams=396, bunch=6):
@@ -203,7 +183,7 @@ def get_beam_packing(beams, nbeams=396, bunch=6):
     logger = logging.getLogger()
 
     # add additional fields for output
-    dtype = [("nr",int), ("x",float), ("y",float), ("group",int)]
+    dtype = [("nr", int), ("x", float), ("y", float), ("group", int)]
     data = np.zeros(len(beams), dtype=dtype)
 
     data["nr"] = np.arange(len(data))
@@ -216,8 +196,8 @@ def get_beam_packing(beams, nbeams=396, bunch=6):
     if len(data) >= nbeams:
         data = data[0:nbeams]
         logger.info("Removed additional beams.")
-    
-    dtype = [("nr",int), ("x",float), ("y",float), ("dist",float)]
+
+    dtype = [("nr", int), ("x", float), ("y", float), ("dist", float)]
     group = 0
 
     work = np.copy(data)
@@ -225,7 +205,9 @@ def get_beam_packing(beams, nbeams=396, bunch=6):
     while len(work) > 0:
         logger.debug("Length: {0}".format(len(work)))
 
-        dist = np.sqrt((work["x"] - work["x"][0])**2 + (work["y"] - work["y"][0])**2)
+        dist = np.sqrt(
+            (work["x"] - work["x"][0]) ** 2 + (work["y"] - work["y"][0]) ** 2
+        )
         tot = np.zeros(len(work), dtype=dtype)
 
         for field in ["nr", "x", "y"]:
@@ -262,7 +244,7 @@ def check_beam_packing(t_data):
 
     logger = logging.getLogger()
 
-    dtype = [("group",int), ("totdist",float)]
+    dtype = [("group", int), ("totdist", float)]
     info = np.zeros(np.max(data["group"]) + 1, dtype=dtype)
 
     for group in np.unique(data["group"]):
@@ -273,13 +255,20 @@ def check_beam_packing(t_data):
         totdist = 0
 
         for nr in range(len(indiv) - 1):
-            dist = np.sqrt((indiv["x"][nr+1:] - indiv["x"][nr])**2 + (indiv["y"][nr+1:] - indiv["y"][nr])**2)
+            dist = np.sqrt(
+                (indiv["x"][nr + 1 :] - indiv["x"][nr]) ** 2
+                + (indiv["y"][nr + 1 :] - indiv["y"][nr]) ** 2
+            )
             value = np.sum(dist)
-            logger.debug("Group: {0}, nr: {1}, dist: {2}, val: {3}".format(group, nr, dist, value))
+            logger.debug(
+                "Group: {0}, nr: {1}, dist: {2}, val: {3}".format(
+                    group, nr, dist, value
+                )
+            )
 
             totdist += value
             logger.debug("Total distance: {0}".format(totdist))
-        
+
         info["group"][group] = group
         info["totdist"][group] = totdist
 
@@ -316,6 +305,7 @@ def setup_logger(level):
 # MAIN
 #
 
+
 def main():
     logger = logging.getLogger()
     setup_logger(logging.ERROR)
@@ -329,7 +319,7 @@ def main():
     packed = get_beam_packing(data)
     end = timer()
 
-    print("Elapsed time: {0:.2f} ms".format(1000*(end - start)))
+    print("Elapsed time: {0:.2f} ms".format(1000 * (end - start)))
 
     for item in packed:
         logger.info("Beam: {0}, group: {1}".format(item["nr"], item["group"]))
@@ -340,7 +330,7 @@ def main():
     metric = check_beam_packing(packed)
     end = timer()
 
-    print("Elapsed time: {0:.2f} ms".format(1000*(end - start)))
+    print("Elapsed time: {0:.2f} ms".format(1000 * (end - start)))
 
     plot_packing_metric(metric)
 

@@ -13,7 +13,7 @@ from scipy import interpolate
 try:
     from iqrm import iqrm_mask
 except ImportError:
-    print('Could not import the IQRM module. RFI excision will not work.')
+    print("Could not import the IQRM module. RFI excision will not work.")
 import your
 from your.formats.filwriter import make_sigproc_object
 
@@ -29,32 +29,30 @@ def parse_args():
     """
 
     parser = argparse.ArgumentParser(
-        description='Pad the sigproc filterbank data.',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description="Pad the sigproc filterbank data.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     parser.add_argument(
-        'filename',
-        type=str,
-        help='The name of the input filterbank file.'
+        "filename", type=str, help="The name of the input filterbank file."
     )
 
     parser.add_argument(
-        '-l',
-        '--length',
-        dest='length',
-        metavar=('seconds'),
+        "-l",
+        "--length",
+        dest="length",
+        metavar=("seconds"),
         type=float,
         required=True,
-        help='The length in seconds to pad the filterbank data to.'
+        help="The length in seconds to pad the filterbank data to."
     )
 
     parser.add_argument(
-        '--iqrm',
-        action='store_true',
-        dest='iqrm',
+        "--iqrm",
+        action="store_true",
+        dest="iqrm",
         default=False,
-        help='Enable IQRM RFI excision prior to padding.'
+        help="Enable IQRM RFI excision prior to padding."
     )
 
     args = parser.parse_args()
@@ -79,37 +77,24 @@ def plot_bandpass_data(bandpass, spline, padding_data):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.plot(
-        bandpass,
-        color='C0',
-        lw=1,
-        label='data',
-        zorder=3
-    )
+    ax.plot(bandpass, color="C0", lw=1, label="data", zorder=3)
 
     ax.plot(
         samples,
         spline(samples),
-        color='C1',
+        color="C1",
         lw=1,
-        ls='dashed',
-        label='spline fit',
-        zorder=4
+        ls="dashed",
+        label="spline fit",
+        zorder=4,
     )
 
-    ax.plot(
-        padding_data,
-        color='C2',
-        lw=1,
-        ls='dotted',
-        label='padding data',
-        zorder=4
-    )
+    ax.plot(padding_data, color="C2", lw=1, ls="dotted", label="padding data", zorder=4)
 
-    ax.set_xlabel('Channel number')
-    ax.set_ylabel('Amplitude')
-    ax.set_title('Median bandpass')
-    ax.legend(loc='best', frameon=False)
+    ax.set_xlabel("Channel number")
+    ax.set_ylabel("Amplitude")
+    ax.set_title("Median bandpass")
+    ax.legend(loc="best", frameon=False)
 
     fig.tight_layout()
 
@@ -131,17 +116,14 @@ def pad_data(filename, length, iqrm):
     yobj = your.Your(filename)
     print(yobj.your_header)
 
-    data = yobj.get_data(
-        nstart=0,
-        nsamp=yobj.your_header.nspectra
-    )
+    data = yobj.get_data(nstart=0, nsamp=yobj.your_header.nspectra)
 
     # run iqrm rfi excision
     if iqrm:
         mean = np.mean(data, axis=None)
         spectral_std = np.std(data, axis=0)
         mask, _ = iqrm_mask(spectral_std, radius=2)
-        print('IQRM channel mask: {}'.format(np.where(mask)[0]))
+        print("IQRM channel mask: {}".format(np.where(mask)[0]))
 
         for isamp in range(data.shape[0]):
             data[isamp, mask[0]] = mean
@@ -149,11 +131,7 @@ def pad_data(filename, length, iqrm):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.plot(
-        np.mean(data, axis=1),
-        lw=0.5,
-        color='black'
-    )
+    ax.plot(np.mean(data, axis=1), lw=0.5, color="black")
 
     fig.tight_layout()
 
@@ -161,7 +139,11 @@ def pad_data(filename, length, iqrm):
     median = np.median(data, axis=None)
     quantiles = np.quantile(data, q=[0.25, 0.75], axis=None)
     std = 0.7413 * np.abs(quantiles[1] - quantiles[0])
-    print('Mean, median and robust std of input filterbank: {0:.4f}, {1:.4f}, {2:.4f}'.format(mean, median, std))
+    print(
+        "Mean, median and robust std of input filterbank: {0:.4f}, {1:.4f}, {2:.4f}".format(
+            mean, median, std
+        )
+    )
 
     # fit median bandpass
     bandpass = np.median(data, axis=0)
@@ -169,18 +151,16 @@ def pad_data(filename, length, iqrm):
     bandpass_std = 0.7413 * np.abs(quantiles[1] - quantiles[0])
     samples = np.arange(len(bandpass))
 
-    mask = (bandpass >= median - 2 * std) & \
-           (bandpass <= median + 2 * std)
+    mask = (bandpass >= median - 2 * std) & (bandpass <= median + 2 * std)
 
     spline = interpolate.UnivariateSpline(
-        x=samples[mask],
-        y=bandpass[mask],
-        k=2,
-        s=20 * len(bandpass)
+        x=samples[mask], y=bandpass[mask], k=2, s=20 * len(bandpass)
     )
 
-    nspectra_padding = int(np.ceil(length / yobj.your_header.tsamp - yobj.your_header.nspectra))
-    print('Number of spectra to append: {0}'.format(nspectra_padding))
+    nspectra_padding = int(
+        np.ceil(length / yobj.your_header.tsamp - yobj.your_header.nspectra)
+    )
+    print("Number of spectra to append: {0}".format(nspectra_padding))
 
     padding_data = np.zeros(shape=(nspectra_padding, yobj.your_header.nchans))
     noise = np.zeros(shape=(nspectra_padding, yobj.your_header.nchans))
@@ -188,9 +168,7 @@ def pad_data(filename, length, iqrm):
     rng = np.random.default_rng()
     for ichan in range(yobj.your_header.nchans):
         noise[:, ichan] = rng.normal(
-            loc=0,
-            scale=bandpass_std[ichan],
-            size=nspectra_padding
+            loc=0, scale=bandpass_std[ichan], size=nspectra_padding
         )
 
     # apply the bandpass model to the padding data
@@ -203,7 +181,7 @@ def pad_data(filename, length, iqrm):
     padding_data = np.round(padding_data)
     padding_data = padding_data.astype(yobj.your_header.dtype)
 
-    print('Shape of padding data: {0}'.format(padding_data.shape))
+    print("Shape of padding data: {0}".format(padding_data.shape))
 
     # centre the data in amplitude and match the means
     shift = int(np.round(128 - mean))
@@ -212,9 +190,7 @@ def pad_data(filename, length, iqrm):
     shift = int(np.round(128 - np.mean(padding_data, axis=None)))
     padding_data = padding_data + shift
 
-    outname = '{0}_padded.fil'.format(
-        os.path.splitext(filename)[0]
-    )
+    outname = "{0}_padded.fil".format(os.path.splitext(filename)[0])
 
     sigproc = make_sigproc_object(
         rawdatafile=outname,
@@ -241,29 +217,28 @@ def pad_data(filename, length, iqrm):
 
     sigproc.write_header(outname)
 
-    sigproc.append_spectra(
-        data,
-        outname
-    )
+    sigproc.append_spectra(data, outname)
 
-    sigproc.append_spectra(
-        padding_data,
-        outname
-    )
+    sigproc.append_spectra(padding_data, outname)
 
     # check that all went fine
     padded_yobj = your.Your(outname)
     print(padded_yobj.your_header)
 
-    assert (padded_yobj.your_header.nspectra == nspectra_padding + yobj.your_header.nspectra)
+    assert (
+        padded_yobj.your_header.nspectra == nspectra_padding + yobj.your_header.nspectra
+    )
 
-    for field in ['bw', 'dtype', 'nchans', 'tsamp', 'tstart']:
-        assert (getattr(padded_yobj.your_header, field) == getattr(yobj.your_header, field))
+    for field in ["bw", "dtype", "nchans", "tsamp", "tstart"]:
+        assert getattr(padded_yobj.your_header, field) == getattr(
+            yobj.your_header, field
+        )
 
 
 #
 # MAIN
 #
+
 
 def main():
     args = parse_args()
@@ -272,8 +247,8 @@ def main():
 
     plt.show()
 
-    print('All done.')
+    print("All done.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
